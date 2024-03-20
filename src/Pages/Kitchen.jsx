@@ -2,12 +2,15 @@ import { Heart, Star } from '@phosphor-icons/react'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { likeng } from '../CommonSlicer'
+import { setLike } from '../CommonSlicer'
+import { Bounce, toast } from 'react-toastify'
 
 export const Kitchen = () => {
   const dispatch = useDispatch()
   const api = useSelector(state => state.common.data)
   const data = api.filter(item => item.type == 'kitchen')
+
+
   return (
     <>
       <section className='p-4 md:py-20'>
@@ -23,14 +26,27 @@ export const Kitchen = () => {
                     <div className="flex justify-between">
                       <h3 className='flex gap-2 items-center'><del className='text-red-400' >{item.price}$</del> <span className='text-green-500'>{Math.round(item.price - (item.price / 100 * 25))}$</span></h3>
                       {
-                        item.amount > 0 ?
-                          <h2 className='text-blue-500 font-bold'>В наличии ({item.amount})</h2>
+                        item.amount > 0
+                          ? <h2 className='text-blue-500 font-bold'>В наличии ({item.amount})</h2>
                           : <h2 className='text-red-500'>Нет в наличии</h2>
                       }
                     </div>
                     <div className='flex items-center justify-between'>
                       <Link to={`/${item.id}`} className='border-2 border-blue-950 px-4 py-2 rounded-md hover:bg-blue-950 hover:text-white'>КУПИТЬ</Link>
-                      <button onClick={() => dispatch(likeng(item))} >{item.liked ? <Star className='text-3xl' /> : <Heart className='text-3xl text-rose-400' />}</button>
+                      <button onClick={() => {
+                        dispatch(setLike(item))
+                        toast.success('Товар уже сохранен!', {
+                          position: 'top-right',
+                          autoClose: 5000,
+                          hideProgressBar: false,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                          progress: undefined,
+                          theme: 'light',
+                          transition: Bounce,
+                        })
+                      }} >{item.liked ? <Star className='text-3xl' /> : <Heart className='text-3xl text-rose-400' />}</button>
                     </div>
                   </div>
                 </div>

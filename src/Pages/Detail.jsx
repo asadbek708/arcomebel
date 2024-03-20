@@ -1,15 +1,34 @@
-import React from 'react'
-import { Heart, ShoppingCart } from '@phosphor-icons/react'
-import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
-import { addToCart, decrement, increment } from '../CommonSlicer'
+import React from 'react';
+import { Heart, ShoppingCart } from '@phosphor-icons/react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import { addToCart, decrement, increment, setLike } from '../CommonSlicer';
+import { Bounce, toast } from 'react-toastify';
 
 export const Detail = () => {
-    const { id } = useParams()
-    const dispatch = useDispatch()
-    const data = useSelector(state => state.common.data)
-    const product = data.filter(pr => pr.id == id)
-    const item = product[0]
+    const { id } = useParams();
+    const dispatch = useDispatch();
+    const data = useSelector(state => state.common.data);
+    const product = data.filter(pr => pr.id == id);
+    const item = product[0];
+
+    const handleAddToCart = () => {
+        dispatch(addToCart(item));
+        if (!item.bought) {
+            toast.success('Товар уже в корзине!', {
+                position: 'top-right',
+                autoClose: 5000,
+                hideProgressBar: false, 
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: 'light',
+                transition: Bounce,
+            });
+        }
+    };
+
     return (
         <>
             <section className='h-screen'>
@@ -39,19 +58,37 @@ export const Detail = () => {
                                 <div className="flex items-center gap-5">
                                     <button className='text-[14px] md:text-3xl w-[25px] h-[25px] md:w-[40px] md:h-[40px] bg-red-400 text-white rounded-md' onClick={() => dispatch(decrement(item))}>-</button>
                                     <h3 className='text-xl md:text-3xl'>{item.count}</h3>
-                                    <button className='text-[14px] md:text-3xl w-[25px] h-[25px] md:w-[40px] md:h-[40px] bg-green-400 text-white rounded-md' onClick={() => dispatch(increment(item))}>+</button>
+                                    <button className='text-[14px] md:text-3xl w-[25px] h-[25px] md:w-[40px] md:h-[40px] bg-green-400 text-white rounded-md' onClick={() => {
+                                        dispatch(increment(item))
+                                    }}
+
+                                    >+</button>
                                 </div>
                                 <div className="flex items-center gap-5">
+                                    <button onClick={handleAddToCart} className={`flex gap-2 items-center text-[14px] md:text-xl ${item.bought ? 'bg-green-400' : 'bg-blue-300'} py-2 px-5 text-white rounded-md`}>{item.bought ? "Куплено" : "Купить"}<ShoppingCart /></button>
                                     <button onClick={() => {
-                                        dispatch(addToCart(item))
-                                    }} className={`flex gap-2 items-center text-[14px] md:text-xl ${item.bought ? 'bg-green-400' : 'bg-blue-300'} py-2 px-5 text-white rounded-md`}>{item.bought ? "Куплено" : "Купить"} <ShoppingCart /></button>
-                                    <button className='flex gap-2 items-center text-[14px] md:text-xl bg-rose-300 py-2 px-5 text-white rounded-md'>В избранное <Heart /></button>
+                                        dispatch(setLike(item))
+                                        if(!item.liked){
+                                            toast.success('Товар уже сохранен!', {
+                                                position: 'top-right',
+                                                autoClose: 5000,
+                                                hideProgressBar: false,
+                                                closeOnClick: true,
+                                                pauseOnHover: true,
+                                                draggable: true,
+                                                progress: undefined,
+                                                theme: 'light',
+                                                transition: Bounce,
+                                            })
+                                        }
+                                    }} className='flex gap-2 items-center text-[14px] md:text-xl bg-rose-300 py-2 px-5 text-white rounded-md'>{item.liked ? "Товар уже сохранен" : "Избранное"} <Heart /></button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section >
+            </section>
         </>
-    )
-}
+    );
+};
+
